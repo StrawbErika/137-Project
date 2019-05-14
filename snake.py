@@ -16,11 +16,6 @@ pygame.display.update()
 red = (255,0,0)  
 black = (0,0,0)
 
-# def s
-snakeHead = [250,250] 
-snakeBody = [snakeHead,[240,250],[230,250]] 
-apple = [random.randrange(1,40)*10,random.randrange(1,40)*10]
-
 def showSnake(snakeBody):
     for position in snakeBody:
         pygame.draw.rect(display,red,pygame.Rect(position[0],position[1],10,10))
@@ -28,15 +23,17 @@ def showSnake(snakeBody):
 def showApple(display,apple):
     pygame.draw.rect(display,black,pygame.Rect(apple[0], apple[1],10,10))
 
-def crashWithWall(snakeHead):
+def crashedWithWall(snakeHead):
     if snakeHead[0]>=width or snakeHead[0]<=0 or snakeHead[1]>=height or snakeHead[1]<=0 :
         return 1
     else:
         return 0
-def eatApple(snakeHead, apple):
-    if snakeHead == apple:
-        snake_position.insert(0,list(snake_head))
-        score = score + 1
+
+def eatApple(snakeHead,snakeBody, apple):
+    snakeBody.insert(0,list(snakeHead))
+    # score = score + 1
+    apple = [random.randrange(1,40)*10,random.randrange(1,40)*10]
+    return apple
 
 def snakeLogic(snakeHead, snakeBody, button):
     if button == 1:
@@ -54,8 +51,27 @@ def snakeLogic(snakeHead, snakeBody, button):
     
     return snakeBody
 
+def spawnApple():
+    apple = [random.randrange(1,40)*10,random.randrange(1,40)*10]
+    return apple
 
-def playGame(snakeHead, snakeBody, apple, button):
+def spawnSnake():
+    xSnake = random.randrange(1,40)*10
+    ySnake = random.randrange(1,40)*10
+    snakeHead = [xSnake,ySnake]
+    snakeBody = [[xSnake,ySnake],[xSnake-10,ySnake],[xSnake-10,ySnake]] 
+    return snakeHead, snakeBody
+
+def crashedWithSelf(snakeHead, snakeBody):
+    snakeHead = snakeBody[0]
+    if snakeHead in snakeBody[1:]:
+        return 1
+    else:
+        return 0
+
+def playGame():
+    apple = spawnApple()    
+    snakeHead,snakeBody = spawnSnake()
     crashed = False
     prevButton = 1
     button = 1
@@ -66,33 +82,35 @@ def playGame(snakeHead, snakeBody, apple, button):
 
             if event.type == pygame.QUIT:
                 crashed = True
-            if crashWithWall(snakeHead):
-                crashed = True
-                print("GAME OVER")
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_LEFT and prevButton != 1:
                     button = 0
                 elif event.key == pygame.K_RIGHT and prevButton != 0:
                     button = 1
-                elif event.key == pygame.K_UP and prevButton != 2:
-                    button = 3
                 elif event.key == pygame.K_DOWN and prevButton != 3:
                     button = 2
+                elif event.key == pygame.K_UP and prevButton != 2:
+                    button = 3
                 else:
                     button = button
-        
+
+        if crashedWithWall(snakeHead):
+            crashed = True
+        if crashedWithSelf(snakeHead, snakeBody):
+            crashed = True
+        if snakeHead == apple:
+            apple = eatApple(snakeHead,snakeBody,apple)
         display.fill(windowColor)
         showSnake(snakeBody)
         showApple(display,apple)
 
         snakeBody= snakeLogic(snakeHead, snakeBody, button)
-        pygame.display.update()
         prevButton = button
         clock = pygame.time.Clock()
-
         clock.tick(7)
+        pygame.display.update()
 
-playGame(snakeHead, snakeBody, apple, 1)
+playGame()
 clock = pygame.time.Clock()
 clock.tick(100)
 
