@@ -29,11 +29,11 @@ def crashedWithWall(snakeHead):
     else:
         return 0
 
-def eatApple(snakeHead,snakeBody, apple):
+def eatApple(snakeHead,snakeBody, apple, score):
     snakeBody.insert(0,list(snakeHead))
-    # score = score + 1
+    score = score+1
     apple = [random.randrange(1,40)*10,random.randrange(1,40)*10]
-    return apple
+    return apple, score
 
 def moveSnake(snakeHead, snakeBody, button):
     if button == 1:
@@ -70,6 +70,7 @@ def crashedWithSelf(snakeHead, snakeBody):
         return 0
 
 def snakePlay(crashed, apple, button):
+    score = 0
     snakeHead,snakeBody = spawnSnake()
     currentVector = np.array(snakeBody[0])-np.array(snakeBody[1])
     while crashed is not True:
@@ -93,7 +94,7 @@ def snakePlay(crashed, apple, button):
         if crashedWithSelf(snakeHead, snakeBody):
             crashed = True
         if snakeHead == apple:
-            apple = eatApple(snakeHead,snakeBody,apple)
+            apple,score = eatApple(snakeHead,snakeBody,apple,score)
 
         display.fill(windowColor)
         showSnake(snakeBody)
@@ -101,9 +102,9 @@ def snakePlay(crashed, apple, button):
         snakeBody= moveSnake(snakeHead, snakeBody, button)
         prevButton = button
         clock = pygame.time.Clock()
-        clock.tick(7)
+        clock.tick(20)
         pygame.display.update()
-
+    print("SCORE: ", score)
 
 def playGame():
     apple = spawnApple()    
